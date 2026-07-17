@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.pytest_cache/
+
+# Environments
+venv/
+.venv/
+env/
+riskmapp/
+
+# Editors
+.vscode/
+.idea/
+
+# Secrets
+.env
+.streamlit/secrets.toml
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
