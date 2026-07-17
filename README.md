@@ -1,648 +1,577 @@
-RiskMapp
-An interactive stock research and risk-management platform built with Python, machine learning, Streamlit, Docker, and Azure
-Live application: 
-Author: Gonzalo Abduca
+# RiskMapp
 
-Overview
-RiskMapp is an interactive equity-research and risk-management application designed to bring several parts of the investment process into one dashboard.
+An interactive equity-research and risk-management platform built with Python, machine learning, Streamlit, Docker, GitHub, and Microsoft Azure.
 
-Instead of evaluating a stock using only price charts or isolated valuation ratios, RiskMapp combines:
+**Live application:** Add Azure URL
+**Author:** Gonzalo Abduca
 
-Company fundamentals
-Historical and forward valuation
-Machine-learning market-regime detection
-Trend and volatility analysis
-Options-market positioning
-Analyst expectations
-Institutional ownership
-Peer and sector comparisons
-Earnings-event analysis
-Statistical risk metrics
-The objective is to help investors move from raw financial data to a more structured investment view:
+---
 
-What is the company worth, how is the stock behaving, what risks are present, and how does it compare with similar businesses?
+## Overview
 
-Why I Built This Project
-Equity analysis is often fragmented across multiple tools.
+RiskMapp consolidates multiple parts of the equity-research process into one interactive dashboard.
 
-An investor may use one platform for financial statements, another for technical charts, another for options data, and a spreadsheet for peer comparisons. This makes the research process slower and increases the risk of evaluating signals independently rather than as part of a complete investment framework.
+The application combines:
 
-RiskMapp was built to consolidate those workflows into one application.
+* Company fundamentals
+* Historical and forward valuation
+* Machine-learning market-regime detection
+* Technical and volatility analysis
+* Options-market positioning
+* Analyst expectations
+* Institutional ownership
+* Peer comparisons
+* Earnings analysis
+* Statistical risk metrics
 
-The project demonstrates the ability to:
+Its purpose is to help investors answer four central questions:
 
-Retrieve and process financial-market data.
-Engineer quantitative trading and risk features.
-Apply unsupervised machine learning to financial time series.
-Translate analytical outputs into interactive visualizations.
-Build a usable Streamlit product.
-Package the application with Docker.
-Deploy the container as a cloud web application on Microsoft Azure.
-Application Workflow
+> What is the company worth, how is the stock behaving, what risks are present, and how does it compare with similar businesses?
+
+---
+
+## Application Workflow
+
 The user enters a stock ticker such as:
 
+```text
 AAPL
 MSFT
 NVDA
 COIN
-RiskMapp then retrieves and processes the available company, market, analyst, financial-statement, and options data.
+```
 
-The dashboard produces a structured analysis across four main dimensions:
+RiskMapp retrieves available market, company, financial-statement, analyst, institutional-ownership, and options data.
 
+The application then produces analysis across four dimensions:
+
+```text
 Company
-   │
-   ├── Business and fundamentals
-   ├── Price behavior and market regime
-   ├── Valuation and peer positioning
-   └── Risk, options and market expectations
-This allows the user to evaluate both the underlying business and the behavior of the traded security.
+│
+├── Business and fundamentals
+├── Price behavior and market regime
+├── Valuation and peer positioning
+└── Risk, options, and market expectations
+```
 
-Main Features
-1. Company Snapshot
-The application begins with a concise company overview that includes:
+---
 
-Company name
-Sector and industry
-Current market price
-Analyst high and low price targets
-Implied upside
-Implied downside
-Company website
-Business description
-Company logo
-This gives the user immediate context before moving into deeper analysis.
+## Main Features
 
-2. Machine-Learning Market-Regime Detection
-RiskMapp uses an unsupervised Gaussian Hidden Markov Model to identify latent market regimes in each stock’s historical behavior.
+### Company Snapshot
 
-The model does not receive predefined bull or bear labels. Instead, it learns recurring statistical states from engineered market features.
+Provides an immediate overview of the selected company:
 
-Input features
-The regime model incorporates information such as:
+* Company name
+* Sector and industry
+* Current market price
+* Analyst price targets
+* Implied upside and downside
+* Business description
+* Company website
 
-Price momentum
-ADX trend strength
-Short-term versus long-term volatility
-Volatility of volatility
-Relative trading volume
-Distance from the long-term moving average
-Drawdown from historical highs
-Hurst exponent
-These features are standardized and reduced using Principal Component Analysis before being passed to the Hidden Markov Model.
+### Machine-Learning Market Regimes
 
-Raw market data
-      ↓
+RiskMapp uses an unsupervised Gaussian Hidden Markov Model to identify recurring statistical regimes in a stock’s historical behavior.
+
+The model uses features such as:
+
+* Price momentum
+* ADX trend strength
+* Short-term and long-term volatility
+* Volatility of volatility
+* Relative trading volume
+* Distance from the long-term moving average
+* Drawdown from historical highs
+* Hurst exponent
+
+The feature pipeline is:
+
+```text
+Market data
+    ↓
 Feature engineering
-      ↓
+    ↓
 Rolling normalization
-      ↓
+    ↓
 StandardScaler
-      ↓
+    ↓
 Principal Component Analysis
-      ↓
+    ↓
 Gaussian Hidden Markov Model
-      ↓
+    ↓
 Latent market regimes
-Regime interpretation
-For every detected regime, the application calculates:
+```
 
-Average forward return
-Annualized return
-Annualized volatility
-Annualized Sharpe ratio
-Number of observations
-The regime with the strongest historical risk-adjusted return is classified as the favorable state, while the weakest is treated as the unfavorable state.
+Each regime is evaluated using:
 
-The results are displayed directly on an interactive candlestick chart.
+* Average forward return
+* Annualized return
+* Annualized volatility
+* Sharpe ratio
+* Number of observations
 
-Why this matters
-Markets do not behave according to one stable statistical distribution. Momentum, volatility, liquidity, and trend persistence can change considerably through time.
+The strongest historical risk-adjusted state is classified as favorable, while the weakest is classified as unfavorable.
 
-Regime detection helps answer:
+The model is intended as a risk-classification tool, not as a guaranteed prediction system.
 
-Is the stock currently behaving in a historically favorable or unfavorable market state?
+### Trend and Volatility Analysis
 
-This is intended as a risk-classification tool rather than a guaranteed price-prediction system.
+The dashboard includes:
 
-3. Quantitative Trend Analysis
-The application combines regime classification with several quantitative trend indicators.
+* Average Directional Index
+* Positive and negative directional movement
+* Standardized MACD momentum
+* Volatility-adjusted trend bands
+* Long-term moving-average extension
+* Relative volume
+* Rolling drawdown
+* Hurst exponent
 
-These include:
+### Options Positioning
 
-Average Directional Index
-Positive and negative directional movement
-Standardized MACD momentum
-Volatility-adjusted trend bands
-Long-term moving-average extension
-Relative volume
-Rolling drawdown
-Hurst exponent
-The Hurst exponent is used to assess whether recent returns exhibit characteristics associated with:
+RiskMapp aggregates call and put open interest by strike and estimates potential positioning levels.
 
-Trend persistence
-Random behavior
-Mean reversion
-The resulting trend line is displayed together with market-regime information and historical price action.
+It highlights:
 
-4. Options Dealer-Pressure Map
-RiskMapp retrieves available option chains and aggregates call and put open interest by strike.
+* Call walls
+* Put walls
+* Support zones
+* Resistance zones
+* High-concentration option strikes
 
-It estimates the most relevant positioning levels by examining:
+These levels are displayed on an interactive candlestick chart.
 
-Net open interest = Call open interest − Put open interest
-The application then compares the estimated positioning at each strike with the stock’s average trading volume.
+This analysis is an approximation based on publicly available open-interest data. It does not observe dealers’ actual hedge positions.
 
-The output highlights potential:
+### Implied Volatility
 
-Call walls
-Put walls
-Support zones
-Resistance zones
-High-concentration option strikes
-These levels are overlaid on an interactive candlestick chart.
+The options module includes:
 
-The width of each level reflects its estimated relative importance.
+* Black–Scholes option pricing
+* Numerical implied-volatility estimation
+* Brent root-finding
+* Call and put support
+* Continuous dividend yield
+* Multiple expiration dates
+* At-the-money option selection
+* Bid–ask midpoint pricing
 
-This module is an approximation based on publicly available open-interest data. It does not observe dealers’ complete books or actual hedge positions.
+### Fundamental Analysis
 
-5. Implied-Volatility Analysis
-The options module also contains a Black–Scholes pricing implementation and a numerical implied-volatility solver.
+The dashboard evaluates:
 
-Implied volatility is estimated using Brent’s root-finding method, which solves for the volatility that equates the theoretical option value with its observed market price.
+**Valuation**
 
-The analysis supports:
+* Market capitalization
+* Enterprise value
+* Trailing P/E
+* Forward P/E
+* PEG ratio
+* Price-to-book ratio
+* Sales multiple
 
-Calls and puts
-Continuous dividend yield
-Multiple expiration dates
-At-the-money option selection
-Bid–ask midpoint pricing
-Historical implied-volatility comparison
-This helps evaluate whether current option pricing implies unusually high or low expected movement.
+**Growth**
 
-6. Analyst Expectations
-RiskMapp summarizes market expectations through:
+* Revenue growth
+* Earnings growth
+* Historical sales growth
+* Historical EPS growth
+* Expected EPS growth
 
-Analyst high price target
-Analyst low price target
-Mean price target
-Median price target
-Historical upgrades
-Historical downgrades
-Maintained ratings
-Reiterated ratings
-Initiated coverage
-Price targets are shown directly against the stock’s historical price.
+**Profitability**
 
-This makes it easier to compare current market pricing with the range of published analyst expectations.
+* Gross margin
+* Operating margin
+* EBIT yield
+* Free-cash-flow yield
+* Return on equity
+* Return on assets
 
-7. Institutional Ownership
-The ownership module analyzes:
+**Balance sheet**
 
-Major institutional holders
-Percentage held by institutions
-Percentage held by insiders
-Remaining public ownership
-Number of reporting institutions
-The results are displayed through interactive bar charts and ownership-distribution charts.
+* Debt-to-equity ratio
+* Current ratio
+* Quick ratio
+* Cash per share
 
-This provides additional context about the composition and concentration of the shareholder base.
+### Historical Valuation
 
-8. Fundamental Company Analysis
-The dashboard collects and calculates a broad set of financial indicators, including:
-
-Valuation
-Market capitalization
-Enterprise value
-Trailing P/E
-Forward P/E
-PEG ratio
-Price-to-book ratio
-Sales multiple
-Growth
-Revenue growth
-Earnings growth
-Expected EPS growth
-Historical sales growth
-Historical EPS growth
-Profitability and efficiency
-Gross margin
-Operating margin
-EBIT yield
-Free-cash-flow yield
-Return on equity
-Return on assets
-Balance-sheet and liquidity
-Debt-to-equity ratio
-Current ratio
-Quick ratio
-Cash per share
-Event risk
-Next earnings date
-Days remaining until earnings
-These metrics provide a quick but broad view of the company’s financial profile.
-
-9. Historical and Forward Valuation Table
-RiskMapp reconstructs a multi-year financial and valuation history using market prices and reported financial statements.
+RiskMapp reconstructs historical valuation using reported financial statements and market prices.
 
 The table includes:
 
-Stock price
-Market capitalization
-Revenue
-Revenue growth
-EPS
-Earnings growth
-Price-to-earnings ratio
-PEG ratio
-Sales multiple
-Net income
-Trailing-twelve-month results
-Forward analyst estimates
-The application aligns reported financial-statement dates with available market prices to show how the stock was valued at different points in time.
+* Stock price
+* Market capitalization
+* Revenue
+* Revenue growth
+* EPS
+* Earnings growth
+* P/E ratio
+* PEG ratio
+* Sales multiple
+* Net income
+* Forward analyst estimates
 
 This helps distinguish between:
 
-Business growth
-Multiple expansion
-Multiple compression
-Changes in market expectations
-10. Sector and Peer Comparison
-The selected stock is compared with companies that share a similar:
+* Business growth
+* Multiple expansion
+* Multiple compression
+* Changes in market expectations
 
-Industry
-Company-size classification
-The peer table includes available fields such as:
+### Peer Comparison
 
-Current P/E
-Forward P/E
-PEG ratio
-EPS growth expectations
-Short interest
-Growth score
-Efficiency score
-Value score
-Fragility score
-Venture score
-Pain score
-The application also produces:
+The selected company is compared with businesses from a similar industry and size category.
 
-Company versus sector valuation chart
-Company versus sector EPS-growth comparison
-Multi-factor radar chart
-Peer-level comparison table
-This places company-specific metrics in the context of relevant competitors rather than evaluating them in isolation.
+Available comparison metrics include:
 
-11. Earnings Analysis
-The application retrieves historical and expected earnings information and can evaluate:
+* Current P/E
+* Forward P/E
+* PEG ratio
+* EPS growth expectations
+* Short interest
+* Growth score
+* Efficiency score
+* Value score
+* Fragility score
 
-Upcoming earnings dates
-Historical EPS estimates
-Reported EPS
-Earnings surprises
-Changes in expectations
-Event timing
-Earnings events are an important source of discontinuous risk. Displaying them alongside the stock’s broader analytical profile helps the user identify when additional caution may be required.
+### Risk Analytics
 
-12. Risk and Performance Analytics
-RiskMapp uses statistical and portfolio-analysis tools to evaluate return behavior.
+Depending on data availability, RiskMapp calculates:
 
-Depending on data availability, the application can calculate or visualize measures such as:
+* Total return
+* Annualized return
+* Annualized volatility
+* Sharpe ratio
+* Sortino ratio
+* Maximum drawdown
+* Return skewness
+* Return kurtosis
+* Rolling volatility
+* Benchmark-relative performance
+* Return distribution
 
-Total return
-Annualized return
-Annualized volatility
-Sharpe ratio
-Sortino ratio
-Maximum drawdown
-Return skewness
-Return kurtosis
-Rolling volatility
-Benchmark-relative performance
-Drawdown history
-Return distribution
-The purpose is not only to identify potential upside, but also to quantify the shape and severity of downside risk.
+---
 
-Technical Architecture
-                         ┌─────────────────────┐
-                         │   User enters       │
-                         │   stock ticker      │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                         ┌─────────────────────┐
-                         │   Yahoo Finance     │
-                         │   Financial data    │
-                         │   Options data      │
-                         └──────────┬──────────┘
-                                    │
-                                    ▼
-                    ┌──────────────────────────────┐
-                    │      Data processing         │
-                    │ Pandas · NumPy · SciPy       │
-                    └──────────────┬───────────────┘
-                                   │
-                ┌──────────────────┼──────────────────┐
-                ▼                  ▼                  ▼
-       ┌────────────────┐ ┌────────────────┐ ┌────────────────┐
-       │ Market-regime  │ │ Fundamentals   │ │ Options and    │
-       │ model          │ │ and valuation  │ │ risk analytics │
-       └───────┬────────┘ └───────┬────────┘ └───────┬────────┘
-               │                  │                  │
-               └──────────────────┼──────────────────┘
-                                  ▼
-                       ┌──────────────────────┐
-                       │ Plotly visualizations│
-                       │ Streamlit interface  │
-                       └──────────┬───────────┘
-                                  ▼
-                       ┌──────────────────────┐
-                       │ Docker container     │
-                       │ Azure web deployment │
-                       └──────────────────────┘
-Technology Stack
-Layer
+## Technical Architecture
 
-Technology
-
-Language
-
-Python 3.11
-
-Web application
-
-Streamlit
-
-Market data
-
-yfinance
-
+```text
+User enters ticker
+        ↓
+Yahoo Finance and local datasets
+        ↓
 Data processing
+Pandas · NumPy · SciPy
+        ↓
+┌───────────────────┬───────────────────┬───────────────────┐
+│ Market-regime ML  │ Fundamentals      │ Options and risk  │
+│ model             │ and valuation     │ analytics         │
+└───────────────────┴───────────────────┴───────────────────┘
+        ↓
+Plotly visualizations
+        ↓
+Streamlit interface
+        ↓
+Docker container
+        ↓
+Azure Container Registry
+        ↓
+Azure Container Apps
+```
 
-pandas, NumPy
+---
 
-Machine learning
+## Technology Stack
 
-scikit-learn, hmmlearn
+| Layer                 | Technology                                     |
+| --------------------- | ---------------------------------------------- |
+| Language              | Python 3.11                                    |
+| Web application       | Streamlit                                      |
+| Market data           | yfinance                                       |
+| Data processing       | pandas, NumPy                                  |
+| Machine learning      | scikit-learn, hmmlearn                         |
+| Statistical analysis  | SciPy, statsmodels                             |
+| Performance analytics | QuantStats                                     |
+| Visualization         | Plotly, Matplotlib                             |
+| Spreadsheet support   | Excel, openpyxl                                |
+| Containerization      | Docker                                         |
+| Source control        | Git, GitHub                                    |
+| Cloud deployment      | Azure Container Registry, Azure Container Apps |
 
-Statistical analysis
+---
 
-SciPy, statsmodels
+## Running Locally
 
-Performance analytics
+### Clone the repository
 
-QuantStats
-
-Visualization
-
-Plotly, Matplotlib, Seaborn
-
-HTML/XML processing
-
-lxml
-
-Data files
-
-Excel, openpyxl
-
-Containerization
-
-Docker
-
-Source control
-
-Git and GitHub
-
-Cloud deployment
-
-Microsoft Azure
-
-Machine-Learning Methodology
-Feature engineering
-Historical market data is converted into normalized signals that represent:
-
-Direction
-Momentum
-Trend strength
-Volatility
-Trading activity
-Price extension
-Drawdown
-Persistence
-Standardization
-Features with different units and scales are normalized using StandardScaler.
-
-Dimensionality reduction
-Principal Component Analysis compresses correlated trading indicators into a smaller set of orthogonal factors.
-
-This reduces redundancy and makes the regime model less dependent on any single raw indicator.
-
-Hidden Markov Model
-A Gaussian Hidden Markov Model identifies hidden states that may have generated the observed market factors.
-
-The state labels themselves have no predefined economic meaning. Their interpretation is assigned after evaluating the return and risk characteristics associated with each state.
-
-Regime evaluation
-Each state is evaluated using its subsequent returns:
-
-Annualized return = Mean daily return × 252
-
-Annualized volatility = Daily volatility × √252
-
-Sharpe ratio = Annualized return ÷ Annualized volatility
-The most favorable and unfavorable regimes are then displayed on the price chart.
-
-Running the Project Locally
-1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/riskmapp.git
+```bash
+git clone https://github.com/gonzaloabduca/riskmapp.git
 cd riskmapp
-2. Create a virtual environment
+```
+
+### Create a virtual environment
+
 Using Conda:
 
+```bash
 conda create -n riskmapp python=3.11 -y
 conda activate riskmapp
-Or using venv:
+```
 
+Using `venv`:
+
+```bash
 python -m venv .venv
+```
+
 Windows:
 
+```powershell
 .venv\Scripts\activate
+```
+
 Linux or macOS:
 
+```bash
 source .venv/bin/activate
-3. Install dependencies
+```
+
+### Install dependencies
+
+```bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-4. Run the application
+```
+
+### Start Streamlit
+
+```bash
 streamlit run riskmapp.py
+```
+
 Open:
 
+```text
 http://localhost:8501
-Running with Docker
-Build the image
+```
+
+---
+
+## Running with Docker
+
+Build the image:
+
+```bash
 docker build -t riskmapp:latest .
-Run the container
+```
+
+Run the container:
+
+```bash
 docker run --rm -p 8501:8501 riskmapp:latest
+```
+
 Open:
 
+```text
 http://localhost:8501
-Environment Variables
-Credentials and external-service tokens should be passed as environment variables rather than committed to the repository.
+```
 
-Example:
+---
 
-LOGO_DEV_TOKEN=your_token
-In Python:
+## Azure Deployment
 
-import os
+The production deployment follows this architecture:
 
-logo_token = os.getenv("LOGO_DEV_TOKEN")
-For Docker:
-
-docker run --rm \
-  -p 8501:8501 \
-  -e LOGO_DEV_TOKEN="your_token" \
-  riskmapp:latest
-For Azure, add the variable under:
-
-App Service
-→ Settings
-→ Environment variables
-Azure Deployment
-The application is designed to run as a Linux Docker container on Azure.
-
-GitHub repository
+```text
+Local source code
         ↓
 Docker image build
         ↓
 Azure Container Registry
         ↓
-Azure App Service
-The container exposes Streamlit on port 8501.
+Azure Container Apps
+```
 
-The following Azure environment setting is required:
+The Docker image is built locally and pushed to Azure Container Registry.
 
-WEBSITES_PORT=8501
-The application can be connected to GitHub Actions so every push to the main branch automatically:
+Azure Container Apps then runs the image as a public web application with Streamlit exposed on port `8501`.
 
-Builds a new Docker image.
-Pushes the image to Azure Container Registry.
-Deploys the updated image to Azure App Service.
-Restarts the web application.
-Repository Structure
+Future releases can automate this process through GitHub Actions:
+
+```text
+Push to main
+    ↓
+Build Docker image
+    ↓
+Push image to ACR
+    ↓
+Update Azure Container App
+```
+
+---
+
+## Environment Variables
+
+Credentials and external-service tokens should be passed through environment variables and must not be committed to GitHub.
+
+Example:
+
+```text
+LOGO_DEV_TOKEN=your_token
+```
+
+Python:
+
+```python
+import os
+
+logo_token = os.getenv("LOGO_DEV_TOKEN")
+```
+
+Docker:
+
+```bash
+docker run --rm \
+  -p 8501:8501 \
+  -e LOGO_DEV_TOKEN="your_token" \
+  riskmapp:latest
+```
+
+For Azure Container Apps, secrets and environment variables can be configured through the Azure portal or Azure CLI.
+
+---
+
+## Repository Structure
+
+```text
 riskmapp/
 │
-├── riskmapp.py
-├── requirements.txt
-├── Dockerfile
+├── .streamlit/
+│   └── config.toml
 ├── .dockerignore
 ├── .gitignore
-├── README.md
-├── us_stock_market_watchlist2 2025-11.xlsx
-└── .github/
-    └── workflows/
-        └── azure-deployment.yml
-As the project evolves, the application can be refactored into modules:
-
-riskmapp/
-│
-├── app.py
-├── src/
-│   ├── data_loader.py
-│   ├── regime_model.py
-│   ├── options_analysis.py
-│   ├── fundamentals.py
-│   ├── risk_metrics.py
-│   └── visualizations.py
-├── data/
-├── tests/
-├── requirements.txt
 ├── Dockerfile
-└── README.md
-Key Engineering Decisions
-Streamlit caching
-External financial-data requests and computationally expensive transformations are cached to:
+├── LICENSE
+├── README.md
+├── app_path_patch.py
+├── deploy-container-app.ps1
+├── market_regimes.csv
+├── requirements.txt
+├── riskmapp.py
+└── us_stock_market_watchlist2 2025-11.xlsx
+```
 
-Improve response times
-Reduce repeated API calls
-Avoid unnecessary model retraining
-Make the dashboard more stable
-Relative file paths
+---
+
+## Engineering Decisions
+
+### Streamlit Caching
+
+External data requests and computationally expensive transformations are cached to:
+
+* Improve response times
+* Reduce repeated API calls
+* Avoid unnecessary model retraining
+* Improve dashboard stability
+
+### Relative File Paths
+
 Project files are loaded relative to the application directory rather than through local Windows paths.
 
-This ensures the application works consistently across:
+This allows the application to run consistently across:
 
-Windows
-Linux
-Docker
-Azure
-Containerization
-Docker packages the application, Python runtime, dependencies, and required local files into a reproducible image.
+* Windows
+* Linux
+* Docker
+* Azure
 
-This avoids the common problem of an application working locally but failing in production because of different package versions or operating-system dependencies.
+### Containerization
 
-Defensive data handling
-Financial APIs do not always return every field for every company.
+Docker packages the application, Python runtime, dependencies, and required files into a reproducible image.
 
-The application uses validation, fallback values, and exception handling so unavailable information does not necessarily stop the full dashboard.
+This reduces differences between local and production environments.
 
-Current Limitations
-Market and company data depend on the availability and structure of Yahoo Finance data.
-Some securities do not have complete analyst, ownership, options, or financial-statement information.
-Option open interest does not reveal actual dealer positioning or hedge direction.
-Market regimes are identified statistically and should not be interpreted as certain forecasts.
-Analyst estimates may change and should not be treated as intrinsic value.
-Historical relationships may not persist in future market conditions.
-The current application is primarily a research and portfolio project rather than an institutional trading system.
-Future Improvements
-Planned improvements include:
+### Defensive Data Handling
 
-Refactoring the single application file into modular services
-Automated unit and integration testing
-More robust data validation
-Additional market-data providers
-Persistent storage and historical snapshots
-Portfolio-level analysis
-Fundamental factor ranking
-Explainable regime-classification outputs
-Model stability and drift monitoring
-Scenario and stress testing
-CI/CD through GitHub Actions
-Azure monitoring and structured application logs
-Authentication and user-specific watchlists
-Downloadable research reports
-What This Project Demonstrates
-RiskMapp demonstrates practical experience across the full development lifecycle:
+Financial APIs do not always provide every field for every security.
 
-Financial-domain problem definition
-Market and financial-statement data ingestion
-Quantitative feature engineering
-Statistical modeling
-Unsupervised machine learning
-Equity valuation
-Options analysis
-Risk measurement
-Interactive dashboard development
-Dependency management
-Docker containerization
-Git and GitHub workflows
-Cloud deployment on Azure
-The project sits at the intersection of:
+The application uses validation, fallback values, and exception handling so unavailable information does not necessarily stop the complete dashboard.
 
+---
+
+## Current Limitations
+
+* Market and financial data depend on Yahoo Finance availability.
+* Some securities have incomplete analyst, ownership, options, or financial-statement information.
+* Open interest does not reveal actual dealer positioning.
+* Market regimes are statistical classifications, not certain forecasts.
+* Historical relationships may not persist in future market conditions.
+* The project is a portfolio and research application rather than an institutional trading system.
+
+---
+
+## Future Improvements
+
+* Refactor the main application into modular services
+* Add automated unit and integration tests
+* Implement GitHub Actions CI/CD
+* Add persistent storage and historical snapshots
+* Expand portfolio-level analysis
+* Add model-stability and drift monitoring
+* Improve scenario and stress testing
+* Add Azure monitoring and structured logs
+* Add authentication and user-specific watchlists
+* Generate downloadable research reports
+
+---
+
+## What This Project Demonstrates
+
+RiskMapp demonstrates practical experience across:
+
+* Financial-domain problem definition
+* Market-data ingestion
+* Financial-statement processing
+* Quantitative feature engineering
+* Statistical modeling
+* Unsupervised machine learning
+* Equity valuation
+* Options analysis
+* Risk measurement
+* Interactive dashboard development
+* Dependency management
+* Git and GitHub workflows
+* Docker containerization
+* Azure cloud deployment
+
+```text
 Finance + Data Science + Software Engineering + Cloud Deployment
-Disclaimer
+```
+
+---
+
+## Disclaimer
+
 RiskMapp is an educational and portfolio project.
 
 It does not provide investment advice, trading recommendations, or guarantees of future performance. Financial markets involve substantial risk, and historical results do not ensure future outcomes.
 
-The data displayed by the application may be delayed, incomplete, or inaccurate. Users should independently verify all information before making investment decisions.
+The displayed data may be delayed, incomplete, or inaccurate. Users should independently verify all information before making investment decisions.
 
-License
+---
+
+## License
+
 This project is available under the MIT License.
 
-Contact
-Gonzalo Abduca
+---
 
-LinkedIn: https://www.linkedin.com/in/gonzaloabduca/
-GitHub: https://github.com/gonzaloabduca/
-Email: abducagonzalo@gmail.com
+## Contact
+
+**Gonzalo Abduca**
+
+* LinkedIn: https://www.linkedin.com/in/gonzaloabduca/
+* GitHub: https://github.com/gonzaloabduca/
+* Email: [abducagonzalo@gmail.com](mailto:abducagonzalo@gmail.com)
